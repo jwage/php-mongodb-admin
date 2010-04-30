@@ -22,7 +22,20 @@ $options = array(
   'connect' => true
 );
 
-$mongo = new Mongo($server, $options);
+if (!class_exists('Mongo'))
+{
+  die("Mongo support required. Install mongo pecl extension with 'pecl install mongo; echo \"extension=mongo.so\" >> php.ini'");
+}
+try
+{
+  $mongo = new Mongo($server, $options);
+}
+catch (MongoConnectionException $ex)
+{
+  error_log($ex->getMessage());
+  die("Failed to connect to MongoDB");
+}
+
 
 /**
  * Prepare user submitted array of PHP code as a MongoDB
