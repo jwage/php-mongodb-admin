@@ -36,6 +36,38 @@ catch (MongoConnectionException $ex)
   die("Failed to connect to MongoDB");
 }
 
+/**
+ * Render a document preview for the black code box with referenced
+ * linked to the collection and id for that database reference.
+ *
+ * @param string $document 
+ * @return string $preview
+ */
+function renderDocumentPreview($document)
+{
+  $document = prepareMongoDBDocumentForEdit($document);
+  $preview = linkDocumentReferences($document);
+  $preview = print_r($preview, true);
+  return $preview;
+}
+
+/**
+ * Change any references to other documents to include a html link
+ * to that document and collection. Used by the renderDocumentPreview() function.
+ *
+ * @param array $document
+ * @return array $document
+ */
+function linkDocumentReferences($document)
+{
+  foreach ($document as $key => $value) {
+    if (is_array($value) && isset($value['$ref'])) {
+      $document[$key]['$ref'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'">'.$document[$key]['$ref'].'</a>';
+      $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'&id='.$value['$id'].'">'.$document[$key]['$id'].'</a>';
+    }
+  }
+  return $document;
+}
 
 /**
  * Prepare user submitted array of PHP code as a MongoDB
@@ -203,6 +235,11 @@ try {
       font-size: 13px;
       color: #fff;
       font-family: "Bitstream Vera Sans Mono", monospace;
+    }
+
+    pre a {
+      color: #fff !important;
+      text-decoration: underline !important;
     }
 
     #content {
@@ -464,9 +501,10 @@ try {
     <?php foreach ($_REQUEST as $k => $v): ?>
       <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>" />
     <?php endforeach; ?>
-    
+
+    <pre><code><?php echo renderDocumentPreview($document) ?></code></pre>
+
     <?php $prepared = prepareMongoDBDocumentForEdit($document) ?>
-    <pre><code><?php print_r($prepared) ?></code></pre>
 
     <h2>Edit Document</h2>
     <input type="submit" name="save" value="Save" class="save_button" />
