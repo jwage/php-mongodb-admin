@@ -61,9 +61,13 @@ function renderDocumentPreview($document)
 function linkDocumentReferences($document)
 {
   foreach ($document as $key => $value) {
-    if (is_array($value) && isset($value['$ref'])) {
-      $document[$key]['$ref'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'">'.$document[$key]['$ref'].'</a>';
-      $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'&id='.$value['$id'].'">'.$document[$key]['$id'].'</a>';
+    if (is_array($value)) {
+      if (isset($value['$ref'])) {
+        $document[$key]['$ref'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'">'.$document[$key]['$ref'].'</a>';
+        $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'&id='.$value['$id'].'">'.$document[$key]['$id'].'</a>';
+      } else {
+        $document[$key] = linkDocumentReferences($value);
+      }
     }
   }
   return $document;
