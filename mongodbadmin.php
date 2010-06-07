@@ -498,7 +498,13 @@ try {
     <a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>"><?php echo $_REQUEST['collection'] ?></a> >> 
     <?php echo $_REQUEST['id'] ?>
   </h2>
-  <?php $document = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection'])->findOne(array('_id' => new MongoId($_REQUEST['id']))); ?>
+  <?php
+    $document = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection'])->findOne(array('_id' => new MongoId($_REQUEST['id'])));
+
+    if (!$document) {
+      $document = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection'])->findOne(array('_id' => $_REQUEST['id']));
+    }
+  ?>
 
   <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
     <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
