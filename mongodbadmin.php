@@ -82,6 +82,8 @@ function linkDocumentReferences($document)
  */
 function prepareValueForMongoDB($value)
 {
+  $customId = isset($_REQUEST['custom_id']);
+
   if (is_string($value)) {
     eval('$value = ' . $value . ';');
     if (!$value) {
@@ -89,14 +91,17 @@ function prepareValueForMongoDB($value)
       exit;
     }
   }
+
   $prepared = array();
   foreach ($value as $k => $v) {
-    if ($k === '_id') {
+    if ($k === '_id' && $customId) {
+      $v = new MongoId($v);
+    } 
+
+    if ($k === '$id' && $customId) {
       $v = new MongoId($v);
     }
-    if ($k === '$id') {
-      $v = new MongoId($v);
-    }
+
     if (is_array($v)) {
       $prepared[$k] = prepareValueForMongoDB($v);
     } else {
@@ -176,10 +181,13 @@ try {
 
   // DELETE DB COLLECTION DOCUMENT
   if (isset($_REQUEST['delete_document'])) {
-    $mongo
-      ->selectDB($_REQUEST['db'])
-      ->selectCollection($_REQUEST['collection'])
-      ->remove(array('_id' => new MongoId($_REQUEST['delete_document'])));
+    $collection = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection']);
+
+    if (isset($_REQUEST['custom_id'])) {
+      $collection->remove(array('_id' => $_REQUEST['delete_document']));
+    } else {
+      $collection->remove(array('_id' => new MongoId($_REQUEST['delete_document'])));
+    }
 
     header('location: ' . $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection']);
     exit;
@@ -467,12 +475,20 @@ try {
       <tbody>
         <?php foreach ($cursor as $document): ?>
           <tr>
-            <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&id=<?php echo (string) $document['_id'] ?>"><?php echo (string) $document['_id'] ?></a></td>
+            <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId): ?>
+              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&id=<?php echo (string) $document['_id'] ?>"><?php echo (string) $document['_id'] ?></a></td>
+            <?php else: ?>
+              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&id=<?php echo (string) $document['_id'] ?>&custom_id=1"><?php echo (string) $document['_id'] ?></a></td>
+            <?php endif; ?>
             <td>
               <?php $values = array_values($document) ?>
               <?php echo isset($values[1]) ? $values[1] : '-'  ?>
             </td>
-            <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a></td>
+            <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId): ?>
+              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a></td>
+            <?php else: ?>
+              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>&custom_id=1" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a></td>
+            <?php endif; ?>
           </tr>
         <?php endforeach; ?>
       </tbody>
@@ -480,6 +496,11 @@ try {
     
     <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
       <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
+
+    <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId): ?>
+        <input type="hidden" name="custom_id" value="1" />
+    <?php endif; ?>
+
       <?php foreach ($_REQUEST as $k => $v): ?>
         <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>" />
       <?php endforeach; ?>
@@ -499,10 +520,12 @@ try {
     <?php echo $_REQUEST['id'] ?>
   </h2>
   <?php
-    $document = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection'])->findOne(array('_id' => new MongoId($_REQUEST['id'])));
+    $collection = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection']);
 
-    if (!$document) {
-      $document = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection'])->findOne(array('_id' => $_REQUEST['id']));
+    if (isset($_REQUEST['custom_id'])) {
+      $document =$collection->findOne(array('_id' => $_REQUEST['id']));
+    } else {
+      $document = $collection->findOne(array('_id' => new MongoId($_REQUEST['id'])));
     }
   ?>
 
@@ -529,3 +552,4 @@ try {
     </div>
   </body>
 </html>
+
