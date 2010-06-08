@@ -66,9 +66,9 @@ function linkDocumentReferences($mongo, $document)
         $collection = $mongo->selectDB($_REQUEST['db'])->selectCollection($value['$ref']);
         $id = $value['$id'];
 
-        $ref = $collection->findOne(array('_id' => new MongoId($value['$id'])));
+        $ref = findMongoDbDocument($value['$id'], $_REQUEST['db'], $value['$ref']);
         if (!$ref) {
-          $ref = $collection->findOne(array('_id' => $value['$id']));
+          $ref = findMongoDbDocument($value['$id'], $_REQUEST['db'], $value['$ref'], true);
         }
 
         $document[$key]['$ref'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'">'.$document[$key]['$ref'].'</a>';
@@ -149,19 +149,29 @@ function prepareMongoDBDocumentForEdit($value)
   return $prepared;
 }
 
-function findMongoDbDocument($id, $custom_id = false)
+/**
+ * Search for a MongoDB document based on the id
+ *
+ * @param string $id The ID to search for
+ * @param string $db The db to use
+ * @param string $collection The collection to search in
+ * @param bool $forceCustomId True to force a custom id search
+ * @return mixed $document
+ *
+ */
+function findMongoDbDocument($id, $db, $collection, $forceCustomId = false)
 {
-    global $mongo;
+  global $mongo;
 
-    $collection = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection']);
+  $collection = $mongo->selectDB($db)->selectCollection($collection);
 
-    if (isset($_REQUEST['custom_id'])) {
-        $document =$collection->findOne(array('_id' => $_REQUEST['id']));
-    } else {
-        $document = $collection->findOne(array('_id' => new MongoId($_REQUEST['id'])));
-    }
+  if (isset($_REQUEST['custom_id']) && !$forceCustomId) {
+    $document =$collection->findOne(array('_id' => $id));
+  } else {
+    $document = $collection->findOne(array('_id' => new MongoId($id)));
+  }
 
-    return $document;
+  return $document;
 }
 
 // Actions
@@ -227,7 +237,7 @@ try {
       ->selectDB($_REQUEST['db'])
       ->selectCollection($_REQUEST['collection']);
 
-    $document = $coll->findOne(array('_id' => new MongoId($_REQUEST['id'])));
+    $document = findMongoDbDocument($_REQUEST['id'], $_REQUEST['db'], $_REQUEST['collection']);
     unset($document[$_REQUEST['delete_document_field']]);
     $coll->save($document);
 
@@ -547,15 +557,7 @@ try {
     <a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>"><?php echo $_REQUEST['collection'] ?></a> >> 
     <?php echo $_REQUEST['id'] ?>
   </h2>
-  <?php
-    $collection = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection']);
-
-    if (isset($_REQUEST['custom_id'])) {
-      $document = $collection->findOne(array('_id' => $_REQUEST['id']));
-    } else {
-      $document = $collection->findOne(array('_id' => new MongoId($_REQUEST['id'])));
-    }
-  ?>
+  <?php $document = findMongoDbDocument($_REQUEST['id'], $_REQUEST['db'], $_REQUEST['collection']); ?>
 
   <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
     <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
