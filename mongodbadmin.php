@@ -43,10 +43,10 @@ catch (MongoConnectionException $ex)
  * @param string $document 
  * @return string $preview
  */
-function renderDocumentPreview($document)
+function renderDocumentPreview($mongo, $document)
 {
   $document = prepareMongoDBDocumentForEdit($document);
-  $preview = linkDocumentReferences($document);
+  $preview = linkDocumentReferences($mongo, $document);
   $preview = print_r($preview, true);
   return $preview;
 }
@@ -58,13 +58,26 @@ function renderDocumentPreview($document)
  * @param array $document
  * @return array $document
  */
-function linkDocumentReferences($document)
+function linkDocumentReferences($mongo, $document)
 {
   foreach ($document as $key => $value) {
     if (is_array($value)) {
       if (isset($value['$ref'])) {
+        $collection = $mongo->selectDB($_REQUEST['db'])->selectCollection($value['$ref']);
+        $id = $value['$id'];
+
+        $ref = $collection->findOne(array('_id' => new MongoId($value['$id'])));
+        if (!$ref) {
+          $ref = $collection->findOne(array('_id' => $value['$id']));
+        }
+
         $document[$key]['$ref'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'">'.$document[$key]['$ref'].'</a>';
-        $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'&id='.$value['$id'].'">'.$document[$key]['$id'].'</a>';
+
+        if ($ref['_id'] instanceof MongoId) {
+          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'&id='.$value['$id'].'">'.$document[$key]['$id'].'</a>';
+        } else {
+          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'&id='.$value['$id'].'&custom_id=1">'.$document[$key]['$id'].'</a>';
+        }
       } else {
         $document[$key] = linkDocumentReferences($value);
       }
@@ -134,6 +147,21 @@ function prepareMongoDBDocumentForEdit($value)
     }
   }
   return $prepared;
+}
+
+function findMongoDbDocument($id, $custom_id = false)
+{
+    global $mongo;
+
+    $collection = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection']);
+
+    if (isset($_REQUEST['custom_id'])) {
+        $document =$collection->findOne(array('_id' => $_REQUEST['id']));
+    } else {
+        $document = $collection->findOne(array('_id' => new MongoId($_REQUEST['id'])));
+    }
+
+    return $document;
 }
 
 // Actions
@@ -523,7 +551,7 @@ try {
     $collection = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection']);
 
     if (isset($_REQUEST['custom_id'])) {
-      $document =$collection->findOne(array('_id' => $_REQUEST['id']));
+      $document = $collection->findOne(array('_id' => $_REQUEST['id']));
     } else {
       $document = $collection->findOne(array('_id' => new MongoId($_REQUEST['id'])));
     }
@@ -535,7 +563,7 @@ try {
       <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>" />
     <?php endforeach; ?>
 
-    <pre><code><?php echo renderDocumentPreview($document) ?></code></pre>
+    <pre><code><?php echo renderDocumentPreview($mongo, $document) ?></code></pre>
 
     <?php $prepared = prepareMongoDBDocumentForEdit($document) ?>
 
