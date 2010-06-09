@@ -79,7 +79,7 @@ function linkDocumentReferences($mongo, $document)
           $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'&id='.$value['$id'].'&custom_id=1">'.$document[$key]['$id'].'</a>';
         }
       } else {
-        $document[$key] = linkDocumentReferences($value);
+        $document[$key] = linkDocumentReferences($mongo, $value);
       }
     }
   }
