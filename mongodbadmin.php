@@ -17,6 +17,8 @@
  * @author Jonathan H. Wage <jonwage@gmail.com>
  */
 
+header('Pragma: no-cache');
+
 $server = 'mongodb://localhost:27017';
 $options = array(
   'connect' => true
