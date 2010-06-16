@@ -167,7 +167,7 @@ function findMongoDbDocument($id, $db, $collection, $forceCustomId = false)
 
   $collection = $mongo->selectDB($db)->selectCollection($collection);
 
-  if (isset($_REQUEST['custom_id']) && !$forceCustomId) {
+  if (isset($_REQUEST['custom_id']) || $forceCustomId) {
     $document =$collection->findOne(array('_id' => $id));
   } else {
     $document = $collection->findOne(array('_id' => new MongoId($id)));
@@ -178,6 +178,27 @@ function findMongoDbDocument($id, $db, $collection, $forceCustomId = false)
 
 // Actions
 try {
+  // SEARCH
+  if (isset($_REQUEST['search'])) {
+    $customId = false;
+    $document = findMongoDbDocument($_REQUEST['search'], $_REQUEST['db'], $_REQUEST['collection']);
+
+	if (!$document) {
+      $document = findMongoDbDocument($_REQUEST['search'], $_REQUEST['db'], $_REQUEST['collection'], true);
+      $customId = true;
+    }
+
+    if (isset($document['_id'])) {
+      $url = $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] . '&id=' . (string) $document['_id'];
+
+      if ($customId) {
+        header('location: ' . $url . '&custom_id=true');
+      } else {
+        header('location: ' . $url);
+      }
+    }
+  }
+
   // DELETE DB
   if (isset($_REQUEST['delete_db'])) {
     $mongo
@@ -345,6 +366,18 @@ try {
       padding: 8px;
       margin-bottom: 15px;
       width: 350px;
+      float: left;
+    }
+    #search {
+      -moz-border-radius: 10px;
+      -webkit-border-radius: 10px;
+      border-radius: 10px;
+      background: #f5f5f5;
+      border: 1px solid #ccc;
+      padding: 8px;
+      margin-bottom: 15px;
+      width: 350px;
+      float: right;
     }
     table {
       background: #333;
@@ -507,6 +540,14 @@ try {
         <input type="button" name="go" value="Go" />
       </div>
     <?php endif; ?>
+
+    <div id="search">
+      <form action="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>&collection=<?php echo $_REQUEST['collection'] ?>" method="POST">
+        <label for="search_input">Search by ID</label>
+        <input type="text" id="search_input" name="search" size="20" />
+        <input type="submit" name="submit_search" value="Search" />
+      </form>
+    </div>
 
     <table>
       <thead>
