@@ -101,19 +101,20 @@ function prepareValueForMongoDB($value)
 
   if (is_string($value)) {
     eval('$value = ' . $value . ';');
+
     if (!$value) {
-      header('location: '.$_SERVER['HTTP_REFERER']);
+      header('location: ' . $_SERVER['HTTP_REFERER'] . ($customId ? '&custom_id=1' : null));
       exit;
     }
   }
 
   $prepared = array();
   foreach ($value as $k => $v) {
-    if ($k === '_id' && $customId) {
+    if ($k === '_id' && !$customId) {
       $v = new MongoId($v);
-    } 
+    }
 
-    if ($k === '$id' && $customId) {
+    if ($k === '$id' && !$customId) {
       $v = new MongoId($v);
     }
 
@@ -271,13 +272,14 @@ try {
 
   // INSERT OR UPDATE A DB COLLECTION DOCUMENT
   if (isset($_POST['save'])) {
+    $customId = isset($_REQUEST['custom_id']);
     $collection = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection']);
 
     $document = prepareValueForMongoDB($_REQUEST['value']);
     $collection->save($document);
 
     $url = $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] . '&id=' . (string) $document['_id'];
-    header('location: ' . $url);
+    header('location: ' . $url . ($customId ? '&custom_id=1' : null));
     exit;
   }
 
@@ -625,4 +627,3 @@ try {
     </div>
   </body>
 </html>
-
