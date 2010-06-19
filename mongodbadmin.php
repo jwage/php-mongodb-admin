@@ -103,6 +103,7 @@ function prepareValueForMongoDB($value)
     $value = preg_replace('/\'_id\' => \s*MongoId::__set_state\(array\(\s*\)\)/', '\'_id\' => new MongoId("' . (isset($_REQUEST['id']) ? $_REQUEST['id'] : '') . '")', $value);
     $value = preg_replace('/MongoId::__set_state\(array\(\s*\)\)/', 'new MongoId()', $value);
     $value = preg_replace('/MongoDate::__set_state\(array\(\s*\'sec\' => (\d+),\s*\'usec\' => \d+,\s*\)\)/m', 'new MongoDate($1)', $value);
+    $value = preg_replace('/MongoBinData::__set_state\(array\(\s*\'bin\' => \'(.*?)\',\s*\'type\' => ([1,2,3,5,128]),\s*\)\)/m', 'new MongoBinData(\'$1\', $2)', $value);
 
     eval('$value = ' . $value . ';');
 
