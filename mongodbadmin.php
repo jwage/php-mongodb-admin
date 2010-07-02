@@ -17,6 +17,8 @@
  * @author Jonathan H. Wage <jonwage@gmail.com>
  */
 
+header('Pragma: no-cache');
+
 $server = 'mongodb://localhost:27017';
 $options = array(
   'connect' => true
@@ -71,12 +73,12 @@ function linkDocumentReferences($mongo, $document)
           $ref = findMongoDbDocument($value['$id'], $_REQUEST['db'], $value['$ref'], true);
         }
 
-        $document[$key]['$ref'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'">'.$document[$key]['$ref'].'</a>';
+        $document[$key]['$ref'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$value['$db'].'&collection='.$value['$ref'].'">'.$document[$key]['$ref'].'</a>';
 
         if ($ref['_id'] instanceof MongoId) {
-          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'&id='.$value['$id'].'">'.$document[$key]['$id'].'</a>';
+          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$value['$db'].'&collection='.$value['$ref'].'&id='.$value['$id'].'">'.$document[$key]['$id'].'</a>';
         } else {
-          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$_REQUEST['db'].'&collection='.$value['$ref'].'&id='.$value['$id'].'&custom_id=1">'.$document[$key]['$id'].'</a>';
+          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$value['$db'].'&collection='.$value['$ref'].'&id='.$value['$id'].'&custom_id=1">'.$document[$key]['$id'].'</a>';
         }
       } else {
         $document[$key] = linkDocumentReferences($mongo, $value);
@@ -98,20 +100,26 @@ function prepareValueForMongoDB($value)
   $customId = isset($_REQUEST['custom_id']);
 
   if (is_string($value)) {
+    $value = preg_replace('/\'_id\' => \s*MongoId::__set_state\(array\(\s*\)\)/', '\'_id\' => new MongoId("' . (isset($_REQUEST['id']) ? $_REQUEST['id'] : '') . '")', $value);
+    $value = preg_replace('/MongoId::__set_state\(array\(\s*\)\)/', 'new MongoId()', $value);
+    $value = preg_replace('/MongoDate::__set_state\(array\(\s*\'sec\' => (\d+),\s*\'usec\' => \d+,\s*\)\)/m', 'new MongoDate($1)', $value);
+    $value = preg_replace('/MongoBinData::__set_state\(array\(\s*\'bin\' => \'(.*?)\',\s*\'type\' => ([1,2,3,5,128]),\s*\)\)/m', 'new MongoBinData(\'$1\', $2)', $value);
+
     eval('$value = ' . $value . ';');
+
     if (!$value) {
-      header('location: '.$_SERVER['HTTP_REFERER']);
+      header('location: ' . $_SERVER['HTTP_REFERER'] . ($customId ? '&custom_id=1' : null));
       exit;
     }
   }
 
   $prepared = array();
   foreach ($value as $k => $v) {
-    if ($k === '_id' && $customId) {
+    if ($k === '_id' && !$customId) {
       $v = new MongoId($v);
-    } 
+    }
 
-    if ($k === '$id' && $customId) {
+    if ($k === '$id' && !$customId) {
       $v = new MongoId($v);
     }
 
@@ -165,7 +173,7 @@ function findMongoDbDocument($id, $db, $collection, $forceCustomId = false)
 
   $collection = $mongo->selectDB($db)->selectCollection($collection);
 
-  if (isset($_REQUEST['custom_id']) && !$forceCustomId) {
+  if (isset($_REQUEST['custom_id']) || $forceCustomId) {
     $document =$collection->findOne(array('_id' => $id));
   } else {
     $document = $collection->findOne(array('_id' => new MongoId($id)));
@@ -176,6 +184,27 @@ function findMongoDbDocument($id, $db, $collection, $forceCustomId = false)
 
 // Actions
 try {
+  // SEARCH
+  if (isset($_REQUEST['search'])) {
+    $customId = false;
+    $document = findMongoDbDocument($_REQUEST['search'], $_REQUEST['db'], $_REQUEST['collection']);
+
+	if (!$document) {
+      $document = findMongoDbDocument($_REQUEST['search'], $_REQUEST['db'], $_REQUEST['collection'], true);
+      $customId = true;
+    }
+
+    if (isset($document['_id'])) {
+      $url = $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] . '&id=' . (string) $document['_id'];
+
+      if ($customId) {
+        header('location: ' . $url . '&custom_id=true');
+      } else {
+        header('location: ' . $url);
+      }
+    }
+  }
+
   // DELETE DB
   if (isset($_REQUEST['delete_db'])) {
     $mongo
@@ -248,13 +277,14 @@ try {
 
   // INSERT OR UPDATE A DB COLLECTION DOCUMENT
   if (isset($_POST['save'])) {
+    $customId = isset($_REQUEST['custom_id']);
     $collection = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection']);
 
     $document = prepareValueForMongoDB($_REQUEST['value']);
     $collection->save($document);
 
     $url = $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] . '&id=' . (string) $document['_id'];
-    header('location: ' . $url);
+    header('location: ' . $url . ($customId ? '&custom_id=1' : null));
     exit;
   }
 
@@ -344,6 +374,18 @@ try {
       padding: 8px;
       margin-bottom: 15px;
       width: 350px;
+      float: left;
+    }
+    #search {
+      -moz-border-radius: 10px;
+      -webkit-border-radius: 10px;
+      border-radius: 10px;
+      background: #f5f5f5;
+      border: 1px solid #ccc;
+      padding: 8px;
+      margin-bottom: 15px;
+      width: 350px;
+      float: right;
     }
     table {
       background: #333;
@@ -507,6 +549,14 @@ try {
       </div>
     <?php endif; ?>
 
+    <div id="search">
+      <form action="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>&collection=<?php echo $_REQUEST['collection'] ?>" method="POST">
+        <label for="search_input">Search by ID</label>
+        <input type="text" id="search_input" name="search" size="20" />
+        <input type="submit" name="submit_search" value="Search" />
+      </form>
+    </div>
+
     <table>
       <thead>
         <th colspan="3">ID</th>
@@ -583,4 +633,3 @@ try {
     </div>
   </body>
 </html>
-
