@@ -387,6 +387,12 @@ try {
       width: 400px;
       float: right;
     }
+    #search form {
+      margin-bottom: 10px;
+    }
+    #search form:last-child {
+      margin-bottom: 0px;
+    }
     table {
       background: #333;
       -moz-border-radius: 10px;
