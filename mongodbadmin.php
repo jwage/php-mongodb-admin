@@ -185,12 +185,12 @@ function findMongoDbDocument($id, $db, $collection, $forceCustomId = false)
 // Actions
 try {
   // SEARCH BY ID
-  if (isset($_REQUEST['search_by_id'])) {
+  if (isset($_REQUEST['search']) && !is_object(json_decode($_REQUEST['search']))) {
     $customId = false;
-    $document = findMongoDbDocument($_REQUEST['search_by_id'], $_REQUEST['db'], $_REQUEST['collection']);
+    $document = findMongoDbDocument($_REQUEST['search'], $_REQUEST['db'], $_REQUEST['collection']);
 
     if (!$document) {
-      $document = findMongoDbDocument($_REQUEST['search_by_id'], $_REQUEST['db'], $_REQUEST['collection'], true);
+      $document = findMongoDbDocument($_REQUEST['search'], $_REQUEST['db'], $_REQUEST['collection'], true);
       $customId = true;
     }
 
@@ -387,12 +387,6 @@ try {
       width: 400px;
       float: right;
     }
-    #search form {
-      margin-bottom: 10px;
-    }
-    #search form:last-child {
-      margin-bottom: 0px;
-    }
     table {
       background: #333;
       -moz-border-radius: 10px;
@@ -537,7 +531,7 @@ try {
     $limit = $max;
     $skip = ($page - 1) * $max;
 
-    if (isset($_REQUEST['search'])) {
+    if (isset($_REQUEST['search']) && is_object(json_decode($_REQUEST['search']))) {
       $cursor = $mongo
         ->selectDB($_REQUEST['db'])
         ->selectCollection($_REQUEST['collection'])
@@ -568,12 +562,6 @@ try {
     <?php endif; ?>
 
     <div id="search">
-      <form action="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>&collection=<?php echo $_REQUEST['collection'] ?>" method="POST">
-        <label for="search_input">Search by ID</label>
-        <input type="text" id="search_input" name="search_by_id" size="30" />
-        <input type="submit" name="submit_search" value="Search" />
-      </form>
-
       <form action="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>&collection=<?php echo $_REQUEST['collection'] ?>" method="POST">
         <label for="search_input">Search</label>
         <input type="text" id="search_input" name="search" size="36"<?php  echo isset($_REQUEST['search']) ? ' value="' . htmlspecialchars($_REQUEST['search']) . '"': '' ?> />
