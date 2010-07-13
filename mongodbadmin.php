@@ -184,13 +184,13 @@ function findMongoDbDocument($id, $db, $collection, $forceCustomId = false)
 
 // Actions
 try {
-  // SEARCH
-  if (isset($_REQUEST['search'])) {
+  // SEARCH BY ID
+  if (isset($_REQUEST['search_by_id'])) {
     $customId = false;
-    $document = findMongoDbDocument($_REQUEST['search'], $_REQUEST['db'], $_REQUEST['collection']);
+    $document = findMongoDbDocument($_REQUEST['search_by_id'], $_REQUEST['db'], $_REQUEST['collection']);
 
-	if (!$document) {
-      $document = findMongoDbDocument($_REQUEST['search'], $_REQUEST['db'], $_REQUEST['collection'], true);
+    if (!$document) {
+      $document = findMongoDbDocument($_REQUEST['search_by_id'], $_REQUEST['db'], $_REQUEST['collection'], true);
       $customId = true;
     }
 
@@ -384,7 +384,7 @@ try {
       border: 1px solid #ccc;
       padding: 8px;
       margin-bottom: 15px;
-      width: 350px;
+      width: 400px;
       float: right;
     }
     table {
@@ -517,24 +517,36 @@ try {
   </table>
 
 <?php // CREATE AND LIST DB COLLECTION DOCUMENTS ?>
-<?php elseif ( ! isset($_REQUEST['id'])): ?>
+<?php elseif ( ! isset($_REQUEST['id']) || isset($_REQUEST['search'])): ?>
 
     <h2>
       <a href="<?php echo $_SERVER['PHP_SELF'] ?>">Databases</a> >>
       <a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>"><?php echo $_REQUEST['db'] ?></a> >> 
       <?php echo $_REQUEST['collection'] ?>
     </h2>
+
     <?php
     $max = 20;
     $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : 1;
     $limit = $max;
     $skip = ($page - 1) * $max;
-    $cursor = $mongo
+
+    if (isset($_REQUEST['search'])) {
+      $cursor = $mongo
+        ->selectDB($_REQUEST['db'])
+        ->selectCollection($_REQUEST['collection'])
+        ->find(json_decode($_REQUEST['search'], true))
+        ->limit($limit)
+        ->skip($skip);
+    } else {
+      $cursor = $mongo
         ->selectDB($_REQUEST['db'])
         ->selectCollection($_REQUEST['collection'])
         ->find()
         ->limit($limit)
         ->skip($skip);
+      }
+
     $total = $cursor->count();
     $pages = ceil($total / $max);
     if ($pages && $page > $pages) {
@@ -552,7 +564,13 @@ try {
     <div id="search">
       <form action="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>&collection=<?php echo $_REQUEST['collection'] ?>" method="POST">
         <label for="search_input">Search by ID</label>
-        <input type="text" id="search_input" name="search" size="20" />
+        <input type="text" id="search_input" name="search_by_id" size="30" />
+        <input type="submit" name="submit_search" value="Search" />
+      </form>
+
+      <form action="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>&collection=<?php echo $_REQUEST['collection'] ?>" method="POST">
+        <label for="search_input">Search</label>
+        <input type="text" id="search_input" name="search" size="36"<?php  echo isset($_REQUEST['search']) ? ' value="' . htmlspecialchars($_REQUEST['search']) . '"': '' ?> />
         <input type="submit" name="submit_search" value="Search" />
       </form>
     </div>
@@ -633,3 +651,4 @@ try {
     </div>
   </body>
 </html>
+
