@@ -532,10 +532,12 @@ try {
     $skip = ($page - 1) * $max;
 
     if (isset($_REQUEST['search']) && is_object(json_decode($_REQUEST['search']))) {
+      $search = json_decode($_REQUEST['search'], true);
+
       $cursor = $mongo
         ->selectDB($_REQUEST['db'])
         ->selectCollection($_REQUEST['collection'])
-        ->find(json_decode($_REQUEST['search'], true))
+        ->find($search)
         ->limit($limit)
         ->skip($skip);
     } else {
@@ -582,8 +584,34 @@ try {
               <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&id=<?php echo (string) $document['_id'] ?>&custom_id=1"><?php echo (string) $document['_id'] ?></a></td>
             <?php endif; ?>
             <td>
-              <?php $values = array_values($document) ?>
-              <?php echo isset($values[1]) ? $values[1] : '-'  ?>
+              <?php
+                if (isset($search)) {
+                  $displayValues = array();
+
+                  $searchKeys = isset($search['$query']) ? $search['$query'] : $search;
+
+                  foreach ($searchKeys as $fieldName => $searchQuery) {
+                    if ($fieldName != '_id' && $fieldName[0] != '$' && isset($document[$fieldName])) {
+                      $fieldValue = $document[$fieldName];
+
+                      if (!is_array($fieldValue) && !is_object($fieldValue)) {
+                        $displayValues[] = $fieldName . ': ' . substr(str_replace("\n", '', htmlspecialchars($fieldValue)), 0, 100);
+                      }
+                    }
+                  }
+
+                  echo implode(' - ', $displayValues);
+                }
+
+                if (!isset($displayValues) || !count($displayValues)) {
+                  foreach ($document as $fieldName => $fieldValue) {
+                    if ($fieldName != '_id' && !is_array($fieldValue) && !is_object($fieldValue)) {
+                      echo $fieldName . ': ' . substr(str_replace("\n", '', htmlspecialchars($fieldValue)), 0, 100);
+                      break;
+                    }
+                  }
+                }
+              ?>
             </td>
             <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId): ?>
               <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a></td>
