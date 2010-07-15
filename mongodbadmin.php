@@ -316,6 +316,7 @@ try {
       font-size: 13px;
       color: #fff;
       font-family: "Bitstream Vera Sans Mono", monospace;
+      white-space: pre-wrap;
     }
 
     pre a {
