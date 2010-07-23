@@ -449,7 +449,7 @@ try {
   <body>
 
   <div id="content">
-    <h1>PHP MongoDB Admin</h1>
+    <h1>PHP MongoDB Admin - <?php echo $server ?></h1>
     <?php if (isset($_REQUEST['error'])): ?>
       <div class="error">
         <?php echo $_REQUEST['error'] ?>
