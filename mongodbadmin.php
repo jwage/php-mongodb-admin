@@ -402,12 +402,17 @@ try {
       padding: 8px;
     }
     table td {
-      background-color: #fff;
       padding: 8px;
-      border-bottom: 1px solid #ccc;
     }
     table td a {
       font-weight: bold;
+    }
+    table tbody tr {
+      background-color: #fff;
+      border-bottom: 1px solid #ccc;
+    }
+    table tbody tr:hover {
+    	background-color: #eee;
     }
     .save_button {
       -moz-border-radius: 10px;
