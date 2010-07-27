@@ -507,6 +507,7 @@ try {
     <thead>
       <tr>
         <th>Name</th>
+        <th>Documents</th>
         <th></th>
       </tr>
     </thead>
@@ -515,6 +516,7 @@ try {
       <?php foreach ($collections as $collection): ?>
         <tr>
           <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $collection->getName() ?>"><?php echo $collection->getName() ?></a></td>
+          <td><?php echo $collection->count(); ?></td>
           <td><a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>&delete_collection=<?php echo $collection->getName() ?>" onClick="return confirm('Are you sure you want to delete this collection?');">Delete</a></td>
         </tr>
       <?php endforeach; ?>
@@ -678,4 +680,3 @@ try {
     </div>
   </body>
 </html>
-
