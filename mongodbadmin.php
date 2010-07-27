@@ -567,17 +567,18 @@ try {
       <?php echo $_REQUEST['collection'] ?> (<?php echo $cursor->count() ?> Documents)
     </h2>
 
-    <?php
-    if ($pages > 1): ?>
+    <?php if ($pages > 1): ?>
       <div id="pager">
         <?php echo $pages ?> pages. Go to page
-        <input type="text" name="page" size="4" value="<?php echo $page ?>" onChange="javascript: location.href = '<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&page=' + this.value;" />
+        <input type="text" name="page" size="4" value="<?php echo $page ?>" onChange="javascript: location.href = '<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&search=<?php echo urlencode($_REQUEST['search']) ?>&page=' + this.value;" />
         <input type="button" name="go" value="Go" />
       </div>
     <?php endif; ?>
 
     <div id="search">
-      <form action="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>&collection=<?php echo $_REQUEST['collection'] ?>" method="POST">
+      <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="GET">
+        <input type="hidden" name="db" value="<?php echo $_REQUEST['db'] ?>" />
+        <input type="hidden" name="collection" value="<?php echo $_REQUEST['collection'] ?>" />
         <label for="search_input">Search</label>
         <input type="text" id="search_input" name="search" size="36"<?php  echo isset($_REQUEST['search']) ? ' value="' . htmlspecialchars($_REQUEST['search']) . '"': '' ?> />
         <input type="submit" name="submit_search" value="Search" />
