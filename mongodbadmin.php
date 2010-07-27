@@ -474,6 +474,7 @@ try {
     <thead>
       <tr>
         <th>Name</th>
+        <th>Collections</th>
         <th></th>
       </tr>
     </thead>
@@ -482,6 +483,7 @@ try {
       <?php foreach ($dbs['databases'] as $db): if ($db['name'] === 'local' || $db['name'] === 'admin') continue; ?>
         <tr>
           <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $db['name'] ?>"><?php echo $db['name'] ?></a></td>
+          <td><?php echo count($mongo->selectDb($db['name'])->listCollections()) ?></td>
           <td><a href="<?php echo $_SERVER['PHP_SELF'] ?>?delete_db=<?php echo $db['name'] ?>" onClick="return confirm('Are you sure you want to delete this database?');">Delete</a></td>
         </tr>
       <?php endforeach; ?>
