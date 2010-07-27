@@ -349,9 +349,6 @@ try {
     }
 
     #create_form {
-      position: absolute;
-      top: 20px;
-      right: 20px;
       -moz-border-radius: 10px;
       -webkit-border-radius: 10px;
       border-radius: 10px;
@@ -359,6 +356,8 @@ try {
       background: #f5f5f5;
       border: 1px solid #ccc;
       width: 400px;
+      float: right;
+      margin-bottom: 10px;
     }
     #create_form label {
       float: left;
