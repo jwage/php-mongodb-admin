@@ -528,12 +528,6 @@ try {
 <?php // CREATE AND LIST DB COLLECTION DOCUMENTS ?>
 <?php elseif ( ! isset($_REQUEST['id']) || isset($_REQUEST['search'])): ?>
 
-    <h2>
-      <a href="<?php echo $_SERVER['PHP_SELF'] ?>">Databases</a> >>
-      <a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>"><?php echo $_REQUEST['db'] ?></a> >>
-      <?php echo $_REQUEST['collection'] ?>
-    </h2>
-
     <?php
     $max = 20;
     $page = isset($_REQUEST['page']) ? $_REQUEST['page'] : 1;
@@ -556,14 +550,24 @@ try {
         ->find()
         ->limit($limit)
         ->skip($skip);
-      }
+    }
 
     $total = $cursor->count();
     $pages = ceil($total / $max);
+
     if ($pages && $page > $pages) {
       header('location: ' . $_SERVER['HTTP_REFERER']);
       exit;
     }
+    ?>
+
+    <h2>
+      <a href="<?php echo $_SERVER['PHP_SELF'] ?>">Databases</a> >>
+      <a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>"><?php echo $_REQUEST['db'] ?></a> >>
+      <?php echo $_REQUEST['collection'] ?> (<?php echo $cursor->count() ?> Documents)
+    </h2>
+
+    <?php
     if ($pages > 1): ?>
       <div id="pager">
         <?php echo $pages ?> pages. Go to page
