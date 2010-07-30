@@ -42,7 +42,7 @@ catch (MongoConnectionException $ex)
  * Render a document preview for the black code box with referenced
  * linked to the collection and id for that database reference.
  *
- * @param string $document 
+ * @param string $document
  * @return string $preview
  */
 function renderDocumentPreview($mongo, $document)
@@ -92,7 +92,7 @@ function linkDocumentReferences($mongo, $document)
 
 /**
  * Prepare user submitted array of PHP code as a MongoDB
- * document that can be saved. 
+ * document that can be saved.
  *
  * @param mixed $value
  * @return array $document
@@ -212,7 +212,7 @@ try {
     $mongo
       ->selectDB($_REQUEST['delete_db'])
       ->drop();
-  
+
     header('location: ' . $_SERVER['PHP_SELF']);
     exit;
   }
@@ -221,10 +221,10 @@ try {
   if (isset($_REQUEST['create_db'])) {
     $mongo->selectDB($_REQUEST['create_db'])->createCollection('__tmp_collection_');
     $mongo->selectDB($_REQUEST['create_db'])->dropCollection('__tmp_collection_');
-  
+
     header('location: ' . $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['create_db']);
     exit;
-  
+
   }
 
   // CREATE DB COLLECTION
@@ -232,7 +232,7 @@ try {
     $mongo
       ->selectDB($_REQUEST['db'])
       ->createCollection($_REQUEST['create_collection']);
-  
+
     header('location: ' . $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['create_collection']);
     exit;
   }
@@ -243,7 +243,7 @@ try {
       ->selectDB($_REQUEST['db'])
       ->selectCollection($_REQUEST['delete_collection'])
       ->drop();
-  
+
     header('location: ' . $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db']);
     exit;
   }
@@ -351,9 +351,6 @@ try {
     }
 
     #create_form {
-      position: absolute;
-      top: 20px;
-      right: 20px;
       -moz-border-radius: 10px;
       -webkit-border-radius: 10px;
       border-radius: 10px;
@@ -361,6 +358,8 @@ try {
       background: #f5f5f5;
       border: 1px solid #ccc;
       width: 400px;
+      float: right;
+      margin-bottom: 10px;
     }
     #create_form label {
       float: left;
@@ -447,11 +446,11 @@ try {
     }
     </style>
   </head>
-  
+
   <body>
 
   <div id="content">
-    <h1>PHP MongoDB Admin</h1>
+    <h1>PHP MongoDB Admin - <?php echo $server ?></h1>
     <?php if (isset($_REQUEST['error'])): ?>
       <div class="error">
         <?php echo $_REQUEST['error'] ?>
@@ -477,6 +476,7 @@ try {
     <thead>
       <tr>
         <th>Name</th>
+        <th>Collections</th>
         <th></th>
       </tr>
     </thead>
@@ -485,6 +485,7 @@ try {
       <?php foreach ($dbs['databases'] as $db): if ($db['name'] === 'local' || $db['name'] === 'admin') continue; ?>
         <tr>
           <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $db['name'] ?>"><?php echo $db['name'] ?></a></td>
+          <td><?php echo count($mongo->selectDb($db['name'])->listCollections()) ?></td>
           <td><a href="<?php echo $_SERVER['PHP_SELF'] ?>?delete_db=<?php echo $db['name'] ?>" onClick="return confirm('Are you sure you want to delete this database?');">Delete</a></td>
         </tr>
       <?php endforeach; ?>
@@ -510,6 +511,7 @@ try {
     <thead>
       <tr>
         <th>Name</th>
+        <th>Documents</th>
         <th></th>
       </tr>
     </thead>
@@ -518,6 +520,7 @@ try {
       <?php foreach ($collections as $collection): ?>
         <tr>
           <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $collection->getName() ?>"><?php echo $collection->getName() ?></a></td>
+          <td><?php echo $collection->count(); ?></td>
           <td><a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>&delete_collection=<?php echo $collection->getName() ?>" onClick="return confirm('Are you sure you want to delete this collection?');">Delete</a></td>
         </tr>
       <?php endforeach; ?>
@@ -526,12 +529,6 @@ try {
 
 <?php // CREATE AND LIST DB COLLECTION DOCUMENTS ?>
 <?php elseif ( ! isset($_REQUEST['id']) || isset($_REQUEST['search'])): ?>
-
-    <h2>
-      <a href="<?php echo $_SERVER['PHP_SELF'] ?>">Databases</a> >>
-      <a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>"><?php echo $_REQUEST['db'] ?></a> >> 
-      <?php echo $_REQUEST['collection'] ?>
-    </h2>
 
     <?php
     $max = 20;
@@ -555,24 +552,35 @@ try {
         ->find()
         ->limit($limit)
         ->skip($skip);
-      }
+    }
 
     $total = $cursor->count();
     $pages = ceil($total / $max);
+
     if ($pages && $page > $pages) {
       header('location: ' . $_SERVER['HTTP_REFERER']);
       exit;
     }
-    if ($pages > 1): ?>
+    ?>
+
+    <h2>
+      <a href="<?php echo $_SERVER['PHP_SELF'] ?>">Databases</a> >>
+      <a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>"><?php echo $_REQUEST['db'] ?></a> >>
+      <?php echo $_REQUEST['collection'] ?> (<?php echo $cursor->count() ?> Documents)
+    </h2>
+
+    <?php if ($pages > 1): ?>
       <div id="pager">
-        <?php echo $pages ?> pages. Go to page 
-        <input type="text" name="page" size="4" value="<?php echo $page ?>" onChange="javascript: location.href = '<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&page=' + this.value;" />
+        <?php echo $pages ?> pages. Go to page
+        <input type="text" name="page" size="4" value="<?php echo $page ?>" onChange="javascript: location.href = '<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&search=<?php echo urlencode($_REQUEST['search']) ?>&page=' + this.value;" />
         <input type="button" name="go" value="Go" />
       </div>
     <?php endif; ?>
 
     <div id="search">
-      <form action="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>&collection=<?php echo $_REQUEST['collection'] ?>" method="POST">
+      <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="GET">
+        <input type="hidden" name="db" value="<?php echo $_REQUEST['db'] ?>" />
+        <input type="hidden" name="collection" value="<?php echo $_REQUEST['collection'] ?>" />
         <label for="search_input">Search</label>
         <input type="text" id="search_input" name="search" size="36"<?php  echo isset($_REQUEST['search']) ? ' value="' . htmlspecialchars($_REQUEST['search']) . '"': '' ?> />
         <input type="submit" name="submit_search" value="Search" />
@@ -630,7 +638,7 @@ try {
         <?php endforeach; ?>
       </tbody>
     </table>
-    
+
     <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
       <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
 
@@ -652,8 +660,8 @@ try {
 
   <h2>
     <a href="<?php echo $_SERVER['PHP_SELF'] ?>">Databases</a> >>
-    <a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>"><?php echo $_REQUEST['db'] ?></a> >> 
-    <a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>"><?php echo $_REQUEST['collection'] ?></a> >> 
+    <a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>"><?php echo $_REQUEST['db'] ?></a> >>
+    <a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>"><?php echo $_REQUEST['collection'] ?></a> >>
     <?php echo $_REQUEST['id'] ?>
   </h2>
   <?php $document = findMongoDbDocument($_REQUEST['id'], $_REQUEST['db'], $_REQUEST['collection']); ?>
@@ -681,4 +689,3 @@ try {
     </div>
   </body>
 </html>
-
