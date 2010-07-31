@@ -19,7 +19,11 @@
 
 header('Pragma: no-cache');
 
-$server = 'mongodb://localhost:27017';
+$server = array(
+  'mongodb://localhost:27017',
+//  'mongodb://example.org:27017',
+);
+
 $options = array(
   'connect' => true
 );
@@ -30,12 +34,28 @@ if (!class_exists('Mongo'))
 }
 try
 {
-  $mongo = new Mongo($server, $options);
+  $mongo = new Mongo(getServer($server), $options);
 }
 catch (MongoConnectionException $ex)
 {
   error_log($ex->getMessage());
   die("Failed to connect to MongoDB");
+}
+
+
+/**
+ * Get the current MongoDB server.
+ *
+ * @param mixed $server
+ * @return string $server
+ */
+function getServer($server)
+{
+  if (is_array($server)) {
+    return (isset($_COOKIE['mongo_server']) && isset($server[$_COOKIE['mongo_server']])) ? $server[$_COOKIE['mongo_server']] : $server[0];
+  } else {
+    return $server;
+  }
 }
 
 /**
@@ -450,7 +470,22 @@ try {
   <body>
 
   <div id="content">
-    <h1>PHP MongoDB Admin - <?php echo $server ?></h1>
+    <h1>
+      PHP MongoDB Admin -
+      <?php if (is_array($server)): ?>
+        <?php if (count($server) > 1): ?>
+          <select id="server" onChange="document.cookie='mongo_server='+this[this.selectedIndex].value;document.location.reload();return false;">
+            <?php foreach ($server as $key => $s): ?>
+              <option value="<?php echo $key ?>"<?php if (isset($_COOKIE['mongo_server']) && $_COOKIE['mongo_server'] == $key): ?> selected="selected"<?php endif; ?>><?php echo $s ?></option>
+            <?php endforeach; ?>
+          </select>
+        <?php else: ?>
+          <?php echo $server[0] ?>
+        <?php endif; ?>
+      <?php else: ?>
+        <?php echo $server ?>
+      <?php endif; ?>
+    </h1>
     <?php if (isset($_REQUEST['error'])): ?>
       <div class="error">
         <?php echo $_REQUEST['error'] ?>
