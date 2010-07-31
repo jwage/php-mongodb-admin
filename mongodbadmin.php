@@ -572,7 +572,7 @@ try {
     <?php if ($pages > 1): ?>
       <div id="pager">
         <?php echo $pages ?> pages. Go to page
-        <input type="text" name="page" size="4" value="<?php echo $page ?>" onChange="javascript: location.href = '<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&search=<?php echo urlencode($_REQUEST['search']) ?>&page=' + this.value;" />
+        <input type="text" name="page" size="4" value="<?php echo $page ?>" onChange="javascript: location.href = '<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?><?php if (isset($_REQUEST['search'])): ?>&search=<?php echo urlencode($_REQUEST['search']) ?><?php endif; ?>&page=' + this.value;" />
         <input type="button" name="go" value="Go" />
       </div>
     <?php endif; ?>
