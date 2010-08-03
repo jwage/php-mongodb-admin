@@ -28,6 +28,8 @@ $options = array(
   'connect' => true
 );
 
+$readOnly = false;
+
 if (!class_exists('Mongo'))
 {
   die("Mongo support required. Install mongo pecl extension with 'pecl install mongo; echo \"extension=mongo.so\" >> php.ini'");
@@ -228,7 +230,7 @@ try {
   }
 
   // DELETE DB
-  if (isset($_REQUEST['delete_db'])) {
+  if (isset($_REQUEST['delete_db']) && $readOnly !== true) {
     $mongo
       ->selectDB($_REQUEST['delete_db'])
       ->drop();
@@ -238,7 +240,7 @@ try {
   }
 
   // CREATE DB
-  if (isset($_REQUEST['create_db'])) {
+  if (isset($_REQUEST['create_db']) && $readOnly !== true) {
     $mongo->selectDB($_REQUEST['create_db'])->createCollection('__tmp_collection_');
     $mongo->selectDB($_REQUEST['create_db'])->dropCollection('__tmp_collection_');
 
@@ -248,7 +250,7 @@ try {
   }
 
   // CREATE DB COLLECTION
-  if (isset($_REQUEST['create_collection'])) {
+  if (isset($_REQUEST['create_collection']) && $readOnly !== true) {
     $mongo
       ->selectDB($_REQUEST['db'])
       ->createCollection($_REQUEST['create_collection']);
@@ -258,7 +260,7 @@ try {
   }
 
   // DELETE DB COLLECTION
-  if (isset($_REQUEST['delete_collection'])) {
+  if (isset($_REQUEST['delete_collection']) && $readOnly !== true) {
     $mongo
       ->selectDB($_REQUEST['db'])
       ->selectCollection($_REQUEST['delete_collection'])
@@ -269,7 +271,7 @@ try {
   }
 
   // DELETE DB COLLECTION DOCUMENT
-  if (isset($_REQUEST['delete_document'])) {
+  if (isset($_REQUEST['delete_document']) && $readOnly !== true) {
     $collection = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection']);
 
     if (isset($_REQUEST['custom_id'])) {
@@ -283,7 +285,7 @@ try {
   }
 
   // DELETE DB COLLECTION DOCUMENT FIELD AND VALUE
-  if (isset($_REQUEST['delete_document_field'])) {
+  if (isset($_REQUEST['delete_document_field']) && $readOnly !== true) {
     $coll = $mongo
       ->selectDB($_REQUEST['db'])
       ->selectCollection($_REQUEST['collection']);
@@ -298,7 +300,7 @@ try {
   }
 
   // INSERT OR UPDATE A DB COLLECTION DOCUMENT
-  if (isset($_POST['save'])) {
+  if (isset($_POST['save']) && $readOnly !== true) {
     $customId = isset($_REQUEST['custom_id']);
     $collection = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection']);
 
@@ -497,13 +499,15 @@ try {
 <?php // CREATE AND LIST DBs TEMPLATE ?>
 <?php if ( ! isset($_REQUEST['db'])): ?>
 
-  <div id="create_form">
-    <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
-      <label for="create_db_field">Create Database</label>
-      <input type="text" name="create_db" id="create_db_field" />
-      <input type="submit" name="save" value="Save" class="save_button" />
-    </form>
-  </div>
+  <?php if ($readOnly !== true): ?>
+    <div id="create_form">
+      <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
+        <label for="create_db_field">Create Database</label>
+        <input type="text" name="create_db" id="create_db_field" />
+        <input type="submit" name="save" value="Save" class="save_button" />
+      </form>
+    </div>
+  <?php endif; ?>
 
   <h2>Databases</h2>
 
@@ -521,7 +525,12 @@ try {
         <tr>
           <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $db['name'] ?>"><?php echo $db['name'] ?></a></td>
           <td><?php echo count($mongo->selectDb($db['name'])->listCollections()) ?></td>
-          <td><a href="<?php echo $_SERVER['PHP_SELF'] ?>?delete_db=<?php echo $db['name'] ?>" onClick="return confirm('Are you sure you want to delete this database?');">Delete</a></td>
+
+          <?php if ($readOnly !== true): ?>
+            <td><a href="<?php echo $_SERVER['PHP_SELF'] ?>?delete_db=<?php echo $db['name'] ?>" onClick="return confirm('Are you sure you want to delete this database?');">Delete</a></td>
+          <?php else: ?>
+            <td>&nbsp;</td>
+          <?php endif; ?>
         </tr>
       <?php endforeach; ?>
     </tbody>
@@ -530,13 +539,15 @@ try {
 <?php // CREATE AND LIST DB COLLECTIONS ?>
 <?php elseif (isset($_REQUEST['db']) && ! isset($_REQUEST['collection'])): ?>
 
-  <div id="create_form">
-    <form action="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>" method="POST">
-      <label for="create_collection_field">Create Collection</label>
-      <input type="text" name="create_collection" id="create_collection_field" />
-      <input type="submit" name="create" value="Save" class="save_button" />
-    </form>
-  </div>
+  <?php if ($readOnly !== true): ?>
+    <div id="create_form">
+      <form action="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>" method="POST">
+        <label for="create_collection_field">Create Collection</label>
+        <input type="text" name="create_collection" id="create_collection_field" />
+        <input type="submit" name="create" value="Save" class="save_button" />
+      </form>
+    </div>
+  <?php endif; ?>
 
   <h2>
     <a href="<?php echo $_SERVER['PHP_SELF'] ?>">Databases</a> >>
@@ -556,7 +567,12 @@ try {
         <tr>
           <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $collection->getName() ?>"><?php echo $collection->getName() ?></a></td>
           <td><?php echo $collection->count(); ?></td>
-          <td><a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>&delete_collection=<?php echo $collection->getName() ?>" onClick="return confirm('Are you sure you want to delete this collection?');">Delete</a></td>
+
+         <?php if ($readOnly !== true): ?>
+            <td><a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>&delete_collection=<?php echo $collection->getName() ?>" onClick="return confirm('Are you sure you want to delete this collection?');">Delete</a></td>
+          <?php else: ?>
+            <td>&nbsp;</td>
+          <?php endif; ?>
         </tr>
       <?php endforeach; ?>
     </tbody>
@@ -664,9 +680,9 @@ try {
                 }
               ?>
             </td>
-            <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId): ?>
+            <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId && $readOnly !== true): ?>
               <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a></td>
-            <?php else: ?>
+            <?php elseif ($readOnly !== true): ?>
               <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>&custom_id=1" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a></td>
             <?php endif; ?>
           </tr>
@@ -674,50 +690,55 @@ try {
       </tbody>
     </table>
 
-    <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
-      <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
+    <?php if ($readOnly !== true): ?>
+      <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
+        <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
 
-    <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId): ?>
-        <input type="hidden" name="custom_id" value="1" />
-    <?php endif; ?>
+        <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId): ?>
+          <input type="hidden" name="custom_id" value="1" />
+        <?php endif; ?>
 
-      <?php foreach ($_REQUEST as $k => $v): ?>
-        <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>" />
-      <?php endforeach; ?>
+        <?php foreach ($_REQUEST as $k => $v): ?>
+          <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>" />
+        <?php endforeach; ?>
+
         <h2>Create New Document</h2>
         <input type="submit" name="save" value="Save" class="save_button" />
         <textarea name="value"></textarea>
         <input type="submit" name="save" value="Save" class="save_button" />
-    </form>
+      </form>
+    <?php endif; ?>
 
 <?php // EDIT DB COLLECTION DOCUMENT ?>
 <?php else: ?>
 
-  <h2>
+<h2>
     <a href="<?php echo $_SERVER['PHP_SELF'] ?>">Databases</a> >>
     <a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>"><?php echo $_REQUEST['db'] ?></a> >>
     <a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>"><?php echo $_REQUEST['collection'] ?></a> >>
     <?php echo $_REQUEST['id'] ?>
-  </h2>
-  <?php $document = findMongoDbDocument($_REQUEST['id'], $_REQUEST['db'], $_REQUEST['collection']); ?>
+    </h2>
+    <?php $document = findMongoDbDocument($_REQUEST['id'], $_REQUEST['db'], $_REQUEST['collection']); ?>
 
-  <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
-    <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
-    <?php foreach ($_REQUEST as $k => $v): ?>
+  <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
+  <?php foreach ($_REQUEST as $k => $v): ?>
       <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>" />
-    <?php endforeach; ?>
+      <?php endforeach; ?>
 
     <pre><code><?php echo renderDocumentPreview($mongo, $document) ?></code></pre>
 
     <?php $prepared = prepareMongoDBDocumentForEdit($document) ?>
 
-    <h2>Edit Document</h2>
-    <input type="submit" name="save" value="Save" class="save_button" />
-    <textarea name="value"><?php echo var_export($prepared, true) ?></textarea>
-    <input type="submit" name="save" value="Save" class="save_button" />
-  </form>
+    <?php if ($readOnly !== true): ?>
+      <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
+        <h2>Edit Document</h2>
+        <input type="submit" name="save" value="Save" class="save_button" />
+        <textarea name="value"><?php echo var_export($prepared, true) ?></textarea>
+        <input type="submit" name="save" value="Save" class="save_button" />
+      </form>
+    <?php endif; ?>
 
-<?php endif; ?>
+    <?php endif; ?>
 <?php // END ACTION TEMPLATES ?>
 
       <p id="footer">Created by <a href="http://www.twitter.com/jwage" target="_BLANK">Jonathan H. Wage</a></p>
