@@ -720,17 +720,18 @@ try {
     </h2>
     <?php $document = findMongoDbDocument($_REQUEST['id'], $_REQUEST['db'], $_REQUEST['collection']); ?>
 
-  <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
-  <?php foreach ($_REQUEST as $k => $v): ?>
-      <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>" />
-      <?php endforeach; ?>
-
     <pre><code><?php echo renderDocumentPreview($mongo, $document) ?></code></pre>
 
     <?php $prepared = prepareMongoDBDocumentForEdit($document) ?>
 
     <?php if ($readOnly !== true): ?>
       <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
+        <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
+
+        <?php foreach ($_REQUEST as $k => $v): ?>
+          <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>" />
+        <?php endforeach; ?>
+
         <h2>Edit Document</h2>
         <input type="submit" name="save" value="Save" class="save_button" />
         <textarea name="value"><?php echo var_export($prepared, true) ?></textarea>
