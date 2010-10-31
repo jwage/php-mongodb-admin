@@ -72,7 +72,7 @@ function renderDocumentPreview($mongo, $document)
   $document = prepareMongoDBDocumentForEdit($document);
   $preview = linkDocumentReferences($mongo, $document);
   $preview = print_r($preview, true);
-  return $preview;
+  return htmlspecialchars($preview);
 }
 
 /**
