@@ -692,10 +692,12 @@ try {
 
     <?php if ($readOnly !== true): ?>
       <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
-        <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
+        <?php if (isset($document)): ?>
+          <input type="hidden" name="values[_id]" value="<?php echo $document['_id'] ?>" />
 
-        <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId): ?>
-          <input type="hidden" name="custom_id" value="1" />
+          <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId): ?>
+            <input type="hidden" name="custom_id" value="1" />
+          <?php endif; ?>
         <?php endif; ?>
 
         <?php foreach ($_REQUEST as $k => $v): ?>
