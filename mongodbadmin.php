@@ -738,6 +738,12 @@ try {
         <input type="submit" name="save" value="Save" class="save_button" />
       </form>
     <?php endif; ?>
+    <br/>
+    <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId && $readOnly !== true): ?>
+      <a class="save_button" href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a>
+    <?php elseif ($readOnly !== true): ?>
+      <a class="save_button" href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>&custom_id=1" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a>
+    <?php endif; ?>
 
     <?php endif; ?>
 <?php // END ACTION TEMPLATES ?>
