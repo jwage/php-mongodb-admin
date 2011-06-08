@@ -95,15 +95,19 @@ function linkDocumentReferences($mongo, $document)
           $ref = findMongoDbDocument($value['$id'], $_REQUEST['db'], $value['$ref'], true);
         }
 
-        $document[$key]['$ref'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$value['$db'].'&collection='.$value['$ref'].'">'.$document[$key]['$ref'].'</a>';
+        $refDb = isset($value['$db']) ? $value['$db'] : $_REQUEST['db'];
+
+        $document[$key]['$ref'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$refDb.'&collection='.$value['$ref'].'">'.$value['$ref'].'</a>';
 
         if ($ref['_id'] instanceof MongoId) {
-          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$value['$db'].'&collection='.$value['$ref'].'&id='.$value['$id'].'">'.$document[$key]['$id'].'</a>';
+          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$refDb.'&collection='.$value['$ref'].'&id='.$value['$id'].'">'.$value['$id'].'</a>';
         } else {
-          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$value['$db'].'&collection='.$value['$ref'].'&id='.$value['$id'].'&custom_id=1">'.$document[$key]['$id'].'</a>';
+          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$refDb.'&collection='.$value['$ref'].'&id='.$value['$id'].'&custom_id=1">'.$value['$id'].'</a>';
         }
 
-        $document[$key]['$db'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$value['$db'].'">'.$document[$key]['$db'].'</a>';
+        if (isset($value['$db'])) {
+            $document[$key]['$db'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$refDb.'">'.$refDb.'</a>';
+        }
       } else {
         $document[$key] = linkDocumentReferences($mongo, $value);
       }
