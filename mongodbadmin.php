@@ -97,16 +97,16 @@ function linkDocumentReferences($mongo, $document)
 
         $refDb = isset($value['$db']) ? $value['$db'] : $_REQUEST['db'];
 
-        $document[$key]['$ref'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$refDb.'&collection='.$value['$ref'].'">'.$value['$ref'].'</a>';
+        $document[$key]['$ref'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.urlencode($refDb).'&collection='.$value['$ref'].'">'.$value['$ref'].'</a>';
 
         if ($ref['_id'] instanceof MongoId) {
-          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$refDb.'&collection='.$value['$ref'].'&id='.$value['$id'].'">'.$value['$id'].'</a>';
+          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.urlencode($refDb).'&collection='.$value['$ref'].'&id='.$value['$id'].'">'.$value['$id'].'</a>';
         } else {
-          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$refDb.'&collection='.$value['$ref'].'&id='.$value['$id'].'&custom_id=1">'.$value['$id'].'</a>';
+          $document[$key]['$id'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.urlencode($refDb).'&collection='.$value['$ref'].'&id='.$value['$id'].'&custom_id=1">'.$value['$id'].'</a>';
         }
 
         if (isset($value['$db'])) {
-            $document[$key]['$db'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.$refDb.'">'.$refDb.'</a>';
+            $document[$key]['$db'] = '<a href="'.$_SERVER['PHP_SELF'].'?db='.urlencode($refDb).'">'.$refDb.'</a>';
         }
       } else {
         $document[$key] = linkDocumentReferences($mongo, $value);
@@ -223,7 +223,7 @@ try {
     }
 
     if (isset($document['_id'])) {
-      $url = $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] . '&id=' . (string) $document['_id'];
+      $url = $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] . '&id=' . (string) $document['_id'];
 
       if ($customId) {
         header('location: ' . $url . '&custom_id=true');
@@ -248,7 +248,7 @@ try {
     $mongo->selectDB($_REQUEST['create_db'])->createCollection('__tmp_collection_');
     $mongo->selectDB($_REQUEST['create_db'])->dropCollection('__tmp_collection_');
 
-    header('location: ' . $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['create_db']);
+    header('location: ' . $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['create_db']));
     exit;
 
   }
@@ -259,7 +259,7 @@ try {
       ->selectDB($_REQUEST['db'])
       ->createCollection($_REQUEST['create_collection']);
 
-    header('location: ' . $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['create_collection']);
+    header('location: ' . $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['create_collection']);
     exit;
   }
 
@@ -270,7 +270,7 @@ try {
       ->selectCollection($_REQUEST['delete_collection'])
       ->drop();
 
-    header('location: ' . $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db']);
+    header('location: ' . $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']));
     exit;
   }
 
@@ -284,7 +284,7 @@ try {
       $collection->remove(array('_id' => new MongoId($_REQUEST['delete_document'])));
     }
 
-    header('location: ' . $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection']);
+    header('location: ' . $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection']);
     exit;
   }
 
@@ -298,7 +298,7 @@ try {
     unset($document[$_REQUEST['delete_document_field']]);
     $coll->save($document);
 
-    $url = $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] . '&id=' . (string) $document['_id'];
+    $url = $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] . '&id=' . (string) $document['_id'];
     header('location: ' . $url);
     exit;
   }
@@ -311,7 +311,7 @@ try {
     $document = prepareValueForMongoDB($_REQUEST['value']);
     $collection->save($document);
 
-    $url = $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] . '&id=' . (string) $document['_id'];
+    $url = $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] . '&id=' . (string) $document['_id'];
     header('location: ' . $url . ($customId ? '&custom_id=1' : null));
     exit;
   }
@@ -528,11 +528,11 @@ try {
       <?php $dbs = $mongo->listDBs() ?>
       <?php foreach ($dbs['databases'] as $db): if ($db['name'] === 'local' || $db['name'] === 'admin') continue; ?>
         <tr>
-          <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $db['name'] ?>"><?php echo $db['name'] ?></a></td>
+          <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($db['name']) ?>"><?php echo $db['name'] ?></a></td>
           <td><?php echo count($mongo->selectDb($db['name'])->listCollections()) ?></td>
 
           <?php if ($readOnly !== true): ?>
-            <td><a href="<?php echo $_SERVER['PHP_SELF'] ?>?delete_db=<?php echo $db['name'] ?>" onClick="return confirm('Are you sure you want to delete this database?');">Delete</a></td>
+            <td><a href="<?php echo $_SERVER['PHP_SELF'] ?>?delete_db=<?php echo urlencode($db['name']) ?>" onClick="return confirm('Are you sure you want to delete this database?');">Delete</a></td>
           <?php else: ?>
             <td>&nbsp;</td>
           <?php endif; ?>
@@ -546,7 +546,7 @@ try {
 
   <?php if ($readOnly !== true): ?>
     <div id="create_form">
-      <form action="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>" method="POST">
+      <form action="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo urlencode($_REQUEST['db']) ?>" method="POST">
         <label for="create_collection_field">Create Collection</label>
         <input type="text" name="create_collection" id="create_collection_field" />
         <input type="submit" name="create" value="Save" class="save_button" />
@@ -570,11 +570,11 @@ try {
       <?php $collections = $mongo->selectDB($_REQUEST['db'])->listCollections() ?>
       <?php foreach ($collections as $collection): ?>
         <tr>
-          <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $collection->getName() ?>"><?php echo $collection->getName() ?></a></td>
+          <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $collection->getName() ?>"><?php echo $collection->getName() ?></a></td>
           <td><?php echo $collection->count(); ?></td>
 
          <?php if ($readOnly !== true): ?>
-            <td><a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>&delete_collection=<?php echo $collection->getName() ?>" onClick="return confirm('Are you sure you want to delete this collection?');">Delete</a></td>
+            <td><a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo urlencode($_REQUEST['db']) ?>&delete_collection=<?php echo $collection->getName() ?>" onClick="return confirm('Are you sure you want to delete this collection?');">Delete</a></td>
           <?php else: ?>
             <td>&nbsp;</td>
           <?php endif; ?>
@@ -621,14 +621,14 @@ try {
 
     <h2>
       <a href="<?php echo $_SERVER['PHP_SELF'] ?>">Databases</a> >>
-      <a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>"><?php echo $_REQUEST['db'] ?></a> >>
+      <a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo urlencode($_REQUEST['db']) ?>"><?php echo $_REQUEST['db'] ?></a> >>
       <?php echo $_REQUEST['collection'] ?> (<?php echo $cursor->count() ?> Documents)
     </h2>
 
     <?php if ($pages > 1): ?>
       <div id="pager">
         <?php echo $pages ?> pages. Go to page
-        <input type="text" name="page" size="4" value="<?php echo $page ?>" onChange="javascript: location.href = '<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?><?php if (isset($_REQUEST['search'])): ?>&search=<?php echo urlencode($_REQUEST['search']) ?><?php endif; ?>&page=' + this.value;" />
+        <input type="text" name="page" size="4" value="<?php echo $page ?>" onChange="javascript: location.href = '<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] ?><?php if (isset($_REQUEST['search'])): ?>&search=<?php echo urlencode($_REQUEST['search']) ?><?php endif; ?>&page=' + this.value;" />
         <input type="button" name="go" value="Go" />
       </div>
     <?php endif; ?>
@@ -651,9 +651,9 @@ try {
         <?php foreach ($cursor as $document): ?>
           <tr>
             <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId): ?>
-              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&id=<?php echo (string) $document['_id'] ?>"><?php echo (string) $document['_id'] ?></a></td>
+              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] ?>&id=<?php echo (string) $document['_id'] ?>"><?php echo (string) $document['_id'] ?></a></td>
             <?php else: ?>
-              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&id=<?php echo (string) $document['_id'] ?>&custom_id=1"><?php echo (string) $document['_id'] ?></a></td>
+              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] ?>&id=<?php echo (string) $document['_id'] ?>&custom_id=1"><?php echo (string) $document['_id'] ?></a></td>
             <?php endif; ?>
             <td>
               <?php
@@ -686,9 +686,9 @@ try {
               ?>
             </td>
             <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId && $readOnly !== true): ?>
-              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a></td>
+              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a></td>
             <?php elseif ($readOnly !== true): ?>
-              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>&custom_id=1" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a></td>
+              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>&custom_id=1" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a></td>
             <?php endif; ?>
           </tr>
         <?php endforeach; ?>
@@ -721,8 +721,8 @@ try {
 
 <h2>
     <a href="<?php echo $_SERVER['PHP_SELF'] ?>">Databases</a> >>
-    <a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo $_REQUEST['db'] ?>"><?php echo $_REQUEST['db'] ?></a> >>
-    <a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>"><?php echo $_REQUEST['collection'] ?></a> >>
+    <a href="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo urlencode($_REQUEST['db']) ?>"><?php echo $_REQUEST['db'] ?></a> >>
+    <a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] ?>"><?php echo $_REQUEST['collection'] ?></a> >>
     <?php echo $_REQUEST['id'] ?>
     </h2>
     <?php $document = findMongoDbDocument($_REQUEST['id'], $_REQUEST['db'], $_REQUEST['collection']); ?>
@@ -747,9 +747,9 @@ try {
     <?php endif; ?>
     <br/>
     <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId && $readOnly !== true): ?>
-      <a class="save_button" href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a>
+      <a class="save_button" href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a>
     <?php elseif ($readOnly !== true): ?>
-      <a class="save_button" href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . $_REQUEST['db'] . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>&custom_id=1" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a>
+      <a class="save_button" href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] ?>&delete_document=<?php echo (string) $document['_id'] ?>&custom_id=1" onClick="return confirm('Are you sure you want to delete this document?');">Delete</a>
     <?php endif; ?>
 
     <?php endif; ?>
