@@ -202,6 +202,9 @@ function findMongoDbDocument($id, $db, $collection, $forceCustomId = false)
   $collection = $mongo->selectDB($db)->selectCollection($collection);
 
   if (isset($_REQUEST['custom_id']) || $forceCustomId) {
+    if (is_numeric($id)) {
+      $id = (int) $id;
+    }
     $document =$collection->findOne(array('_id' => $id));
   } else {
     $document = $collection->findOne(array('_id' => new MongoId($id)));
