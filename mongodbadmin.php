@@ -483,7 +483,7 @@ try {
         <?php if (count($server) > 1): ?>
           <select id="server" onChange="document.cookie='mongo_server='+this[this.selectedIndex].value;document.location.reload();return false;">
             <?php foreach ($server as $key => $s): ?>
-              <option value="<?php echo $key ?>"<?php if (isset($_COOKIE['mongo_server']) && $_COOKIE['mongo_server'] == $key): ?> selected="selected"<?php endif; ?>><?php echo $s ?></option>
+              <option value="<?php echo $key ?>"<?php if (isset($_COOKIE['mongo_server']) && $_COOKIE['mongo_server'] == $key): ?> selected="selected"<?php endif; ?>><?php echo preg_replace('/\/\/(.*):(.*)@/', '//$1:*****@', $s); ?></option>
             <?php endforeach; ?>
           </select>
         <?php else: ?>
