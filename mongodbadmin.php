@@ -202,6 +202,9 @@ function findMongoDbDocument($id, $db, $collection, $forceCustomId = false)
   $collection = $mongo->selectDB($db)->selectCollection($collection);
 
   if (isset($_REQUEST['custom_id']) || $forceCustomId) {
+    if (is_numeric($id)) {
+      $id = (int) $id;
+    }
     $document =$collection->findOne(array('_id' => $id));
   } else {
     $document = $collection->findOne(array('_id' => new MongoId($id)));
@@ -279,7 +282,11 @@ try {
     $collection = $mongo->selectDB($_REQUEST['db'])->selectCollection($_REQUEST['collection']);
 
     if (isset($_REQUEST['custom_id'])) {
-      $collection->remove(array('_id' => $_REQUEST['delete_document']));
+        $id = $_REQUEST['delete_document'];
+      if (is_numeric($id)) {
+        $id = (int) $id;
+      }
+      $collection->remove(array('_id' => $id));
     } else {
       $collection->remove(array('_id' => new MongoId($_REQUEST['delete_document'])));
     }
