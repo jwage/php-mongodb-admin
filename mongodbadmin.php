@@ -614,7 +614,8 @@ try {
         ->selectCollection($_REQUEST['collection'])
         ->find()
         ->limit($limit)
-        ->skip($skip);
+        ->skip($skip)
+        ->sort(array('_id' => 1));
     }
 
     $total = $cursor->count();
