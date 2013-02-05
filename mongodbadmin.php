@@ -34,6 +34,7 @@ if (!class_exists('Mongo'))
 {
   die("Mongo support required. Install mongo pecl extension with 'pecl install mongo; echo \"extension=mongo.so\" >> php.ini'");
 }
+
 try
 {
   $mongo = new Mongo(getServer($server), $options);
@@ -55,9 +56,9 @@ function getServer($server)
 {
   if (is_array($server)) {
     return (isset($_COOKIE['mongo_server']) && isset($server[$_COOKIE['mongo_server']])) ? $server[$_COOKIE['mongo_server']] : $server[0];
-  } else {
-    return $server;
   }
+ 
+  return $server;
 }
 
 /**
@@ -230,9 +231,9 @@ try {
 
       if ($customId) {
         header('location: ' . $url . '&custom_id=true');
-      } else {
-        header('location: ' . $url);
+  	  exit;
       }
+      header('location: ' . $url);
     }
   }
 
