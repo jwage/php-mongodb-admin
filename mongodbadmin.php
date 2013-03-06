@@ -15,6 +15,7 @@
  * http://www.twitter.com/jwage
  *
  * @author Jonathan H. Wage <jonwage@gmail.com>
+ * @Theme Ted Veatch
  */
 
 header('Pragma: no-cache');
@@ -333,159 +334,36 @@ try {
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>PHP MongoDB Admin</title>
-    <link rel="shortcut icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEACABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAAAEAABILAAASCwAAAAEAAAABAACObVoAkG5bAJFwXgCVdmYAlXZmAJV2ZgCVdmYAo4h4AKOIeACul4oArpeKALKbjwC5pJkAuaSZALmkmQC5pJkAv62jAMGupADFtasAxbWrAMW1qwDKu7IAz8C4ANLEuwDWysQA1srEANbKxADWysQA3dLMAOXc2ADl3NgA6OLdAOji3QDs5%2BMA7OfjAOzn4wDx7OoA8%2FDuAPr49wD6%2BPcA%2Bvj3APAA6wAA9gAAAQH7AAEHAQATAQ0AARkBACUBHwABKwEAOAEyAAE%2BAQBMAUUAAVIBAGABWQABZwEAdQFuAAF8AQCLAYMAAZIBAKEBmgABqQEAuQGxAAHBAQDRAckAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQEDHB0fISQlGBIVFRURAAEBAxwdHyEkJRgSFRUVEQEBAQMcHx8hJSUXFRUVFhAAAQEAGB8hJCUmFxUVFRYMAAEBABUhISQlJhgVFRUXBwEBAQELJCElJiYYFRUVFQMBAQEBByEkJSYmGBUWFwwAAQEBAQEYJSUmJhgVFhcHAQEBAQEBCSYmJiYYFhcQAQEBAQEBAQIYJiYmGBYWAwEBAQEBAQEBByYmJhgXCQEBAQEBAQEBAQEMJiYcDAIBAQEBAQEBAQEBARImEgIBAQEBAQEBAQEBAQEBEQcBAQEBAQEBAQEBAQEBAQICAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA%3D" type="image/x-icon" />
-    <style type="text/css">
-    html{color:#000;background:#FFF;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0;}table{border-collapse:collapse;border-spacing:0;}fieldset,img{border:0;}address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}li{list-style:none;}caption,th{text-align:left;}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}q:before,q:after{content:'';}abbr,acronym{border:0;font-variant:normal;}sup{vertical-align:text-top;}sub{vertical-align:text-bottom;}input,textarea,select{font-family:inherit;font-size:inherit;font-weight:inherit;}input,textarea,select{*font-size:100%;}legend{color:#000;}
-    html { background: #010410; font:13px/1.231 "Lucida Grande",verdana,arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;}table {font-size:inherit;font:100%;}pre,code,kbd,samp,tt{font-family:monospace;*font-size:108%;line-height:100%;}
-    a:link, a:visited, a:active { text-decoration:none; color:#3370C9; outline:none; border:0; }
-    a:hover  { color: #00508c; text-decoration:underline; border:0; }
-
-    pre {
-      -moz-border-radius: 10px;
-      -webkit-border-radius: 10px;
-      border-radius: 10px;
-      padding: 10px;
-      background-color: #222;
-      overflow/**/: auto;
-      margin-bottom: 15px;
-      line-height: 17px;
-      font-size: 13px;
-      color: #fff;
-      font-family: "Bitstream Vera Sans Mono", monospace;
-      white-space: pre-wrap;
-    }
-
-    pre a {
-      color: #fff !important;
-      text-decoration: underline !important;
-    }
-
-    #content {
-      -moz-border-radius: 10px;
-      -webkit-border-radius: 10px;
-      border-radius: 10px;
-      margin-top: 20px;
-      margin-bottom: 20px;
-      padding: 20px;
-      width: 90%;
-      margin-left: auto;
-      margin-right: auto;
-      position:relative;
-      background:#fff;
-      color: #495a7e;
-    }
-    #content h1 { font-size: 25px; font-weight: bold; margin-bottom: 15px; }
-    #content h2 { font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 10px; }
-
-    #footer {
-      margin-top: 15px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 12px;
-    }
-
-    #create_form {
-      -moz-border-radius: 10px;
-      -webkit-border-radius: 10px;
-      border-radius: 10px;
-      padding: 15px;
-      background: #f5f5f5;
-      border: 1px solid #ccc;
-      width: 400px;
-      float: right;
-      margin-bottom: 10px;
-    }
-    #create_form label {
-      float: left;
-      padding: 4px;
-      font-weight: bold;
-      margin-right: 10px;
-    }
-    #pager {
-      -moz-border-radius: 10px;
-      -webkit-border-radius: 10px;
-      border-radius: 10px;
-      background: #f5f5f5;
-      border: 1px solid #ccc;
-      padding: 8px;
-      margin-bottom: 15px;
-      width: 350px;
-      float: left;
-    }
-    #search {
-      -moz-border-radius: 10px;
-      -webkit-border-radius: 10px;
-      border-radius: 10px;
-      background: #f5f5f5;
-      border: 1px solid #ccc;
-      padding: 8px;
-      margin-bottom: 15px;
-      width: 400px;
-      float: right;
-    }
-    table {
-      background: #333;
-      -moz-border-radius: 10px;
-      -webkit-border-radius: 10px;
-      border-radius: 10px;
-      border-collapse: collapse;
-      width: 100%;
-    }
-    table th {
-      color: #fff;
-      font-weight: bold;
-      padding: 8px;
-    }
-    table td {
-      padding: 8px;
-    }
-    table td a {
-      font-weight: bold;
-    }
-    table tbody tr {
-      background-color: #fff;
-      border-bottom: 1px solid #ccc;
-    }
-    table tbody tr:hover {
-    	background-color: #eee;
-    }
-    .save_button {
-      -moz-border-radius: 10px;
-      -webkit-border-radius: 10px;
-      border-radius: 10px;
-      background-color: #333;
-      border: 1px solid #333;
-      color: #fff;
-      padding: 4px;
-      font-weight: bold;
-      padding-left: 10px;
-      padding-right: 10px;
-    }
-    .save_button:hover {
-      background-color: #ccc;
-      border: 1px solid #ccc;
-      color: #333;
-      cursor: pointer;
-    }
-    textarea {
-      padding: 10px;
-      -moz-border-radius: 10px;
-      -webkit-border-radius: 10px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      width: 100%;
-      height: 350px;
-      margin-top: 10px;
-      margin-bottom: 10px;
-    }
-    </style>
+    <link rel="shortcut icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAAAAAAAAAAAAAAAA
+AAAAAAA9Umn/K0Jb/y9FXv8vRV7/L0Ve/y9FXv8vRV7/OU9m/0JWbf8vRV7/L0Ve/y9FXv8vRV7/
+L0Ve/y9FXv8vRV7/LkRe/x83Uv8fN1L/HzdS/x83Uv8fN1L/HzdS/zhOZv9GWnD/HzdS/x83Uv8f
+N1L/HzdS/x83Uv8fN1L/HzdS/y5EXv8fN1L/HzdS/x83Uv8fN1L/HzdS/x83Uv9SbnD/Vm92/x83
+Uv8fN1L/HzdS/x83Uv8fN1L/HzdS/x83Uv8uRF7/HzdS/x83Uv8fN1L/HzdS/x83Uv9MaWX/UKgz
+/0SOJf9NZmn/HzdS/x83Uv8fN1L/HzdS/x83Uv8fN1L/LkRe/x83Uv8fN1L/HzdS/x83Uv86UWP/
+Sqcc/1SsOP9HkiT/QpAe/zNKX/8fN1L/HzdS/x83Uv8fN1L/HzdS/y5EXv8fN1L/HzdS/x83Uv8i
+OVT/VZBF/06pJf9XrkH/SZUo/0OSH/9SfVT/LURa/x83Uv8fN1L/HzdS/x83Uv8uRF7/HzdS/x83
+Uv8fN1L/Ql5g/0qmGf9TrDL/WrFJ/0mWKv9IlSf/SZIt/0NjWv8fN1L/HzdS/x83Uv8fN1L/LkRe
+/x83Uv8fN1L/HzdS/0J0Rf9NqCD/Va05/16yT/9LmCv/SZYo/0mWKf89cED/HzdS/x83Uv8fN1L/
+HzdS/y5EXv8fN1L/HzdS/x83Uv9AeT3/UKko/1evQf9htFX/TZks/0qYKv9KmCn/OnI7/x83Uv8f
+N1L/HzdS/x83Uv8uRF7/HzdS/x83Uv8fN1L/RG1V/0+rLf9asEj/ZbZa/02aLv9MmSz/TJgu/0Rr
+VP8fN1L/HzdS/x83Uv8fN1L/LkRe/x83Uv8fN1L/HzdS/zhTXv9Vqzr/XbJP/2i4X/9OnDD/S5kr
+/1GKR/83UF7/HzdS/x83Uv8fN1L/HzdS/y5EXv8fN1L/HzdS/x83Uv8fN1L/WIxc/16zUf9sumT/
+T50x/0aZJf9GY2L/HzdS/x83Uv8fN1L/HzdS/x83Uv8uRF7/HzdS/x83Uv8fN1L/HzdS/zZOYf9f
+tFT/cLxp/02dLf9WkUr/HzdS/x83Uv8fN1L/HzdS/x83Uv8fN1L/LkRe/x83Uv8fN1L/HzdS/x83
+Uv8fN1L/XXx2/2y8Zf9Qmjj/NEpg/x83Uv8fN1L/HzdS/x83Uv8fN1L/HzdS/y5EXv8fN1L/HzdS
+/x83Uv8fN1L/HzdS/x83Uv9cgnD/Q1tn/x83Uv8fN1L/HzdS/x83Uv8fN1L/HzdS/x83Uv89Umn/
+K0Jb/y9FXv8vRV7/L0Ve/y9FXv8vRV7/OlBl/zRJYf8vRV7/L0Ve/y9FXv8vRV7/L0Ve/y9FXv8v
+RV7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAA==" type="image/x-icon" />
+	<LINK href="mongo.css" rel="stylesheet" type="text/css">
+    
   </head>
 
   <body>
 
   <div id="content">
     <h1>
-      PHP MongoDB Admin -
+      <a href="http://docs.mongodb.org"><div id="mongoLogo"></div></a>
       <?php if (is_array($server)): ?>
         <?php if (count($server) > 1): ?>
           <select id="server" onChange="document.cookie='mongo_server='+this[this.selectedIndex].value;document.location.reload();return false;">
@@ -516,7 +394,7 @@ try {
       <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="POST">
         <label for="create_db_field">Create Database</label>
         <input type="text" name="create_db" id="create_db_field" />
-        <input type="submit" name="save" value="Save" class="save_button" />
+        <input type="submit" name="save" value="Save" />
       </form>
     </div>
   <?php endif; ?>
@@ -556,7 +434,7 @@ try {
       <form action="<?php echo $_SERVER['PHP_SELF'] ?>?db=<?php echo urlencode($_REQUEST['db']) ?>" method="POST">
         <label for="create_collection_field">Create Collection</label>
         <input type="text" name="create_collection" id="create_collection_field" />
-        <input type="submit" name="create" value="Save" class="save_button" />
+        <input type="submit" name="create" value="Save" />
       </form>
     </div>
   <?php endif; ?>
@@ -568,7 +446,7 @@ try {
   <table>
     <thead>
       <tr>
-        <th>Name</th>
+        <th>Collection Name</th>
         <th>Documents</th>
         <th></th>
       </tr>
@@ -718,9 +596,8 @@ try {
         <?php endforeach; ?>
 
         <h2>Create New Document</h2>
-        <input type="submit" name="save" value="Save" class="save_button" />
         <textarea name="value"></textarea>
-        <input type="submit" name="save" value="Save" class="save_button" />
+        <input type="submit" name="save" value="Save" />
       </form>
     <?php endif; ?>
 
@@ -748,9 +625,8 @@ try {
         <?php endforeach; ?>
 
         <h2>Edit Document</h2>
-        <input type="submit" name="save" value="Save" class="save_button" />
         <textarea name="value"><?php echo var_export($prepared, true) ?></textarea>
-        <input type="submit" name="save" value="Save" class="save_button" />
+        <input type="submit" name="save" value="Save" />
       </form>
     <?php endif; ?>
     <br/>
@@ -763,7 +639,7 @@ try {
     <?php endif; ?>
 <?php // END ACTION TEMPLATES ?>
 
-      <p id="footer">Created by <a href="http://www.twitter.com/jwage" target="_BLANK">Jonathan H. Wage</a></p>
+      <p id="footer"><span class="footer">Created by <a href="http://www.twitter.com/jwage" target="_BLANK">Jonathan H. Wage</a> | Theme by Ted Veatch</span></p>
     </div>
   </body>
 </html>
