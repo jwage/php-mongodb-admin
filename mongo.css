@@ -1,0 +1,168 @@
+@charset "UTF-8";
+/* CSS Document */
+
+    html{color:#000;background:#FFF;}
+	body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0;color:#666;}
+	table{border-collapse:collapse;border-spacing:0;}
+	fieldset,img{border:0;}
+	address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}
+	li{list-style:none;}
+	caption,th{text-align:left;}
+	h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}
+	q:before,q:after{content:'';}
+	abbr,acronym{border:0;font-variant:normal;}
+	sup{vertical-align:text-top;}
+	sub{vertical-align:text-bottom;}
+	input,textarea,select{font-family:inherit;font-size:inherit;font-weight:inherit;}
+	input,textarea,select{*font-size:100%;}
+	legend{color:#000;}
+    html { background: #666; font:13px/1.231 "Lucida Grande",verdana,arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;}
+	table {font-size:inherit;font:100%;}
+	pre,code,kbd,samp,tt{font-family:monospace;*font-size:108%;line-height:100%;}
+    a:link, a:visited, a:active { text-decoration:none; color:#666; outline:none; border:0; }
+    a:hover { color:#F90; text-decoration:none; border:0; }
+
+    pre {
+      -moz-border-radius: 10px;
+      -webkit-border-radius: 10px;
+      border-radius: 10px;
+      padding: 10px;
+      background-color: #222;
+      overflow/**/: auto;
+      margin-bottom: 15px;
+      line-height: 17px;
+      font-size: 13px;
+      color: #fff;
+      font-family: "Bitstream Vera Sans Mono", monospace;
+      white-space: pre-wrap;
+    }
+
+    pre a {
+      color: #fff !important;
+      text-decoration: underline !important;
+    }
+
+    #content {
+      -moz-border-radius: 10px;
+      -webkit-border-radius: 10px;
+      border-radius: 10px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      padding: 20px;
+      width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+      position:relative;
+      background:#FFF;
+      color: #495a7e;
+    }
+    #content h1 { font-size: 20px; font-weight: bold; margin-bottom: 15px; color:#FBDDA4; }
+    #content h2 { font-size: 14px; font-weight: bold; margin-bottom: 15px; margin-top: 10px; color:#5AAC41; }
+
+    #footer {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 10px;
+	  color:#FFF;
+    }
+
+    #create_form {
+      -moz-border-radius: 10px;
+      -webkit-border-radius: 10px;
+      border-radius: 10px;
+      padding: 15px;
+      background: #5AAC41;
+      width: 400px;
+      float: right;
+      margin-bottom: 10px;
+    }
+    #create_form label {
+      float: left;
+      padding: 4px;
+      font-weight: bold;
+      margin-right: 10px;
+	  color:#FFF;
+    }
+    #pager {
+      -moz-border-radius: 10px;
+      -webkit-border-radius: 10px;
+      border-radius: 10px;
+      background: #f5f5f5;
+      padding: 8px;
+      margin-bottom: 15px;
+      width: 350px;
+      float: left;
+    }
+    #search {
+      -moz-border-radius: 10px;
+      -webkit-border-radius: 10px;
+      border-radius: 10px;
+      background: #F90;
+      padding: 8px;
+      margin-bottom: 15px;
+      width: 500px;
+      float: right;
+    }
+	#mongoLogo{
+		background-image:url(mongoDB_Banner.png);
+		background-repeat:no-repeat;
+		width:200px;
+		height:75px;
+		float:left;
+		margin-left:-32px;
+	}
+    table {
+      background: #000;
+      -moz-border-radius: 10px;
+      -webkit-border-radius: 10px;
+      border-radius: 10px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    table th {
+      color: #fff;
+      font-weight: bold;
+      padding: 8px;
+    }
+    table td {
+      padding: 8px;
+    }
+    table td a {
+      font-weight: bold;
+    }
+    table tbody tr {
+      background-color: #F3F4EB;
+      border-bottom: 1px solid #ccc;
+    }
+    table tbody tr:hover {
+    	background-color: #333;
+    }
+    .save_button {
+      -moz-border-radius: 10px;
+      -webkit-border-radius: 10px;
+      border-radius: 10px;
+      background-color: #F90;
+      color: #fff;
+      padding: 4px;
+      font-weight: bold;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    .save_button:hover {
+      background-color: #ccc;
+      color: #333;
+      cursor: pointer;
+    }
+    textarea {
+      padding: 10px;
+      -moz-border-radius: 10px;
+      -webkit-border-radius: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      width: 100%;
+      height: 350px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+	.footer{color:#CCC;}
