@@ -19,8 +19,12 @@
 
 header('Pragma: no-cache');
 
+$userName = "username";
+$userPass = "userpass";
+
 $server = array(
-  'mongodb://localhost:27017',
+  // 'mongodb://localhost:27017'
+  'mongodb://' . $userName . ':' . $userPass . '@localhost:27017'
 //  'mongodb://example.org:27017',
 );
 
