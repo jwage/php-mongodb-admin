@@ -167,8 +167,8 @@ function prepareValueForMongoDB($value)
 /**
  * Do not execute Javascript like <script>alert("XSS Attack");</script>
  *
- * @param string $document
- * @return string $preview
+ * @param string $value
+ * @return string $prepared
  */
 
 function secureOutput($value)
