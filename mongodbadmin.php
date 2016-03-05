@@ -31,13 +31,13 @@ $options = array(
 
 $readOnly = false;
 
-if (!class_exists('Mongo'))
+if (!class_exists('MongoClient'))
 {
   die("Mongo support required. Install mongo pecl extension with 'pecl install mongo; echo \"extension=mongo.so\" >> php.ini'");
 }
 try
 {
-  $mongo = new Mongo(getServer($server), $options);
+  $mongo = new MongoClient(getServer($server), $options);
 }
 catch (MongoConnectionException $ex)
 {
@@ -356,7 +356,7 @@ K0Jb/y9FXv8vRV7/L0Ve/y9FXv8vRV7/OlBl/zRJYf8vRV7/L0Ve/y9FXv8vRV7/L0Ve/y9FXv8v
 RV7/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAA==" type="image/x-icon" />
 	<LINK href="mongo.css" rel="stylesheet" type="text/css">
-    
+
   </head>
 
   <body>
