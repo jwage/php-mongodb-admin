@@ -563,7 +563,7 @@ AAAAAAAAAAAAAA==" type="image/x-icon" />
 
                 if (!isset($displayValues) || !count($displayValues)) {
                   foreach ($document as $fieldName => $fieldValue) {
-                    if ($fieldName != '_id' && !is_array($fieldValue) && !is_object($fieldValue)) {
+                    if ($fieldName != '_id' && !is_array($fieldValue) && !is_object($fieldValue) && $fieldValue !== '') {
                       echo $fieldName . ': ' . substr(str_replace("\n", '', htmlspecialchars($fieldValue)), 0, 100);
                       break;
                     }
