@@ -537,38 +537,38 @@ AAAAAAAAAAAAAA==" type="image/x-icon" />
         <?php foreach ($cursor as $document): ?>
           <tr>
             <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId): ?>
-              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] ?>&id=<?php echo (string) $document['_id'] ?>"><?php echo (string) $document['_id'] ?></a></td>
+              <td><a title="<?php echo htmlspecialchars($jsonEncodedDocument) ?>" href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] ?>&id=<?php echo (string) $document['_id'] ?>"><?php echo (string) $document['_id'] ?></a></td>
             <?php else: ?>
-              <td><a href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] ?>&id=<?php echo (string) $document['_id'] ?>&custom_id=1"><?php echo (string) $document['_id'] ?></a></td>
+              <td><a title="<?php echo htmlspecialchars($jsonEncodedDocument) ?>" href="<?php echo $_SERVER['PHP_SELF'] . '?db=' . urlencode($_REQUEST['db']) . '&collection=' . $_REQUEST['collection'] ?>&id=<?php echo (string) $document['_id'] ?>&custom_id=1"><?php echo (string) $document['_id'] ?></a></td>
             <?php endif; ?>
             <td>
               <?php
-                if (isset($search)) {
-                  $displayValues = array();
+              if (isset($search)) {
+                $displayValues = array();
 
-                  $searchKeys = isset($search['$query']) ? $search['$query'] : $search;
+                $searchKeys = isset($search['$query']) ? $search['$query'] : $search;
 
-                  foreach ($searchKeys as $fieldName => $searchQuery) {
-                    if ($fieldName != '_id' && $fieldName[0] != '$' && isset($document[$fieldName])) {
-                      $fieldValue = $document[$fieldName];
+                foreach ($searchKeys as $fieldName => $searchQuery) {
+                  if ($fieldName != '_id' && $fieldName[0] != '$' && isset($document[$fieldName])) {
+                    $fieldValue = $document[$fieldName];
 
-                      if (!is_array($fieldValue) && !is_object($fieldValue)) {
-                        $displayValues[] = $fieldName . ': ' . substr(str_replace("\n", '', htmlspecialchars($fieldValue)), 0, 100);
-                      }
-                    }
-                  }
-
-                  echo implode(' - ', $displayValues);
-                }
-
-                if (!isset($displayValues) || !count($displayValues)) {
-                  foreach ($document as $fieldName => $fieldValue) {
-                    if ($fieldName != '_id' && !is_array($fieldValue) && !is_object($fieldValue) && $fieldValue !== '') {
-                      echo $fieldName . ': ' . substr(str_replace("\n", '', htmlspecialchars($fieldValue)), 0, 100);
-                      break;
+                    if (!is_array($fieldValue) && !is_object($fieldValue)) {
+                      $displayValues[] = $fieldName . ': ' . substr(str_replace("\n", '', htmlspecialchars($fieldValue)), 0, 100);
                     }
                   }
                 }
+
+                echo implode(' - ', $displayValues);
+              }
+
+              if (!isset($displayValues) || !count($displayValues)) {
+                foreach ($document as $fieldName => $fieldValue) {
+                  if ($fieldName != '_id' && !is_array($fieldValue) && !is_object($fieldValue) && $fieldValue !== '') {
+                    echo '<span title="' . htmlspecialchars($jsonEncodedDocument) . '">' . $fieldName . ': ' . substr(str_replace("\n", '', htmlspecialchars($fieldValue)), 0, 100) . '</span>';
+                    break;
+                  }
+                }
+              }
               ?>
             </td>
             <?php if (is_object($document['_id']) && $document['_id'] instanceof MongoId && $readOnly !== true): ?>
