@@ -155,7 +155,7 @@ function prepareValueForMongoDB($value)
     if (is_array($v)) {
       $prepared[$k] = prepareValueForMongoDB($v);
     } else {
-      $prepared[$k] = $v;
+      $prepared[$k] = mysqli_real_escape_string($v);
     }
   }
   return $prepared;
