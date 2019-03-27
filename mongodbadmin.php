@@ -64,11 +64,12 @@ function getServer($server)
 /**
  * Render a document preview for the black code box with referenced
  * linked to the collection and id for that database reference.
- *
- * @param string $document
+ **
+ * @param string $mongo
+ * @param array $document
  * @return string $preview
  */
-function renderDocumentPreview($mongo, $document)
+function renderDocumentPreview($mongo, array $document)
 {
   $document = prepareMongoDBDocumentForEdit($document);
   $preview = linkDocumentReferences($mongo, $document);
@@ -167,7 +168,7 @@ function prepareValueForMongoDB($value)
  * @param array $value
  * @return array $prepared
  */
-function prepareMongoDBDocumentForEdit($value)
+function prepareMongoDBDocumentForEdit(array $value)
 {
   $prepared = array();
   foreach ($value as $key => $value) {
@@ -203,10 +204,13 @@ function findMongoDbDocument($id, $db, $collection, $forceCustomId = false)
   $collection = $mongo->selectDB($db)->selectCollection($collection);
 
   if (isset($_REQUEST['custom_id']) || $forceCustomId) {
-    if (is_numeric($id)) {
-      $id = (int) $id;
+    $document = $collection->findOne(array('_id' => $id));
+    if (!$document) {
+      if (is_numeric($id) && $id < PHP_INT_MAX) {
+        $id = (int) $id;
+      }
+      $document = $collection->findOne(array('_id' => $id));
     }
-    $document =$collection->findOne(array('_id' => $id));
   } else {
     $document = $collection->findOne(array('_id' => new MongoId($id)));
   }
