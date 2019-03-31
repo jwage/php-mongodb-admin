@@ -72,7 +72,9 @@ function renderDocumentPreview($mongo, $document)
 {
   $document = prepareMongoDBDocumentForEdit($document);
   $preview = linkDocumentReferences($mongo, $document);
+  $preview = secureOutput($preview);
   $preview = print_r($preview, true);
+  
   return $preview;
 }
 
@@ -160,6 +162,36 @@ function prepareValueForMongoDB($value)
   }
   return $prepared;
 }
+
+
+/**
+ * Do not execute Javascript like <script>alert("XSS Attack");</script>
+ *
+ * @param string $value
+ * @return string $prepared
+ */
+
+function secureOutput($value)
+{
+      $prepared = array();
+      foreach ($value as $key => $value) {
+
+        if ($key === '_id') {
+          $value = (string) $value;
+        }
+        if ($key === '$id') {
+          $value = (string) $value;
+        }
+        if (is_array($value)) {
+          $prepared[$key] = secureOutput($value);
+        } else {
+          $prepared[$key] =  htmlentities ($value, ENT_QUOTES, "UTF-8");;
+        }
+      }
+      return $prepared;
+}
+
+
 
 /**
  * Prepare a MongoDB document for the textarea so it can be edited.
